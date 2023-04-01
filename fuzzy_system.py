@@ -49,6 +49,6 @@ def fuzzySystem(front, left_minus_right):
         if FRONT_MODERATE[0]<front and front<FRONT_MODERATE[1] and SMALL_LEAN_RIGHT[0]<left_minus_right and left_minus_right<SMALL_LEAN_RIGHT[1]:
             theta_list.append(-15)
         if front > FRONT_FAR and SMALL_LEAN_RIGHT[0]<left_minus_right and left_minus_right<SMALL_LEAN_RIGHT[1]:
-            theta_list.append(5)
+            theta_list.append(-5)
 
     return sum(theta_list)/len(theta_list)

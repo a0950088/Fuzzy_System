@@ -27,7 +27,7 @@ class Gui:
 
     def start(self):
         self.root.title("HW1")
-        self.root.geometry("450x700")
+        self.root.geometry("450x600")
         
         f = tkFont.Font(family='Ink Free')
         tk.Label(master=self.root).grid(row=9,column=0,columnspan=2)
