@@ -1,7 +1,7 @@
 import math as m
 import numpy as np
 from tools import getLinearEquation
-
+from fuzzy_system import fuzzySystem
 MAX_THETA = 40
 MIN_THETA = -40
 MAX_PHI = 270
@@ -19,6 +19,7 @@ class Car:
         self.left_sensor = np.zeros(3)
         self.horizental_line = np.zeros(3)
         self.horizental_direction = "Positive"
+        self.sensors_data = np.array([22.0, 8.4853, 8.4853])
         
     def setPhi(self, phi):
         phi %= 360
@@ -55,14 +56,15 @@ class Car:
         self.horizental_line, _, _ = self.computeLines(self.setPhi(self.phi+90))
         self.horizental_direction = "Positive" if self.horizental_line[0]*front_x+self.horizental_line[1]*front_y+self.horizental_line[2] >= 0 else "Negative"        
     
+    def setSensorsData(self, front, right, left):
+        self.sensors_data[0] = front
+        self.sensors_data[1] = right
+        self.sensors_data[2] = left
+    
     def run(self):
         # fuzzy system change theta
+        print("Sensor Data: ", self.sensors_data)
+        self.theta = fuzzySystem(self.sensors_data[0],self.sensors_data[2]-self.sensors_data[1])
         self.setTheta(self.theta)
         self.changePosition()
         self.setSensorsAndHorizentalLine()
-        print(self.front_sensor)
-        print(self.right_sensor)
-        print(self.left_sensor)
-        print(self.horizental_line)
-        print(self.horizental_direction)
-        print(self.x, self.y)

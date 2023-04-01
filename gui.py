@@ -1,7 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import tkinter as tk
-from matplotlib.animation import FuncAnimation
 import tkinter.font as tkFont
 from car import Car
 from map import Map
@@ -23,7 +22,9 @@ class Gui:
         self.ax.set_xlim(-11,42)
         self.ax.set_ylim(-5,55)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.root)
-        
+        self.update_point = []
+        self.update_distence = []
+
     def start(self):
         self.root.title("HW1")
         self.root.geometry("450x700")
@@ -55,11 +56,17 @@ class Gui:
         self.ax.plot(map_point_x, map_point_y)
         self.draw()
     
-    def draw_car(self, points, r):
-        #map.check->car.setSensor
-        car_circle = Circle(xy=(points[0], points[1]), radius=r, alpha=0.5)
-        self.ax.add_patch(car_circle)
+    def draw_car(self):
+        p = self.update_point.pop(0)
+        d = self.update_distence.pop(0)
+        self.front_distence.set(str(d[0]))
+        self.right_distence.set(str(d[1]))
+        self.left_distence.set(str(d[2]))
+        car_circle = Circle(xy=(p[0], p[1]), radius=3, alpha=0.5)
+        self.ax.add_artist(car_circle)
         self.draw()
+        if self.update_point != []:
+            self.root.after(100, self.draw_car)
         
     def quit(self):
         self.root.quit()
@@ -69,29 +76,31 @@ def main():
     map = Map()
     car = Car()
     gui = Gui()
-    run_flag = True
+    points = []
+    distence_list = []
     # initialize
     gui.start()
-    gui.draw_map(map.map_points[3:], map.end_rectangle)
-    gui.draw_car(car.getPosition()[:2], car.radius)
-    
     # run
-    while run_flag:
+    while True:
         car.run()
         front_distence = map.getSensorDistenceOnMapLine(car.x, car.y, car.front_sensor, car.horizental_line, car.horizental_direction)
         right_distence = map.getSensorDistenceOnMapLine(car.x, car.y, car.right_sensor, car.horizental_line, car.horizental_direction)
         left_distence = map.getSensorDistenceOnMapLine(car.x, car.y, car.left_sensor, car.horizental_line, car.horizental_direction)
-        gui.draw_car(car.getPosition()[:2], car.radius)
-        gui.front_distence.set(str(front_distence))
-        gui.right_distence.set(str(right_distence))
-        gui.left_distence.set(str(left_distence))
+        car.setSensorsData(front_distence, right_distence, left_distence)
+        points.append(car.getPosition()[:2])
+        distence_list.append([front_distence, right_distence, left_distence])
         if map.isPointsInEnd(car.x, car.y, car.radius):
             print("Success!")
             break
         elif front_distence<3 or right_distence<3 or left_distence<3:
             print("Failed!")
             break
-        break
+    gui.update_point = points
+    gui.update_distence = distence_list
+    plt.ion()
+    gui.draw_map(map.map_points[3:], map.end_rectangle)
+    gui.draw_car()
+    plt.ioff()
     gui.root.mainloop()
     
 if __name__ == "__main__":
